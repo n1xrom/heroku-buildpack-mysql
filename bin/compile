@@ -15,26 +15,56 @@ shopt -s dotglob
 # - https://ubuntu.pkgs.org/20.04/ubuntu-updates-universe-amd64/mariadb-client-10.3_10.3.25-0ubuntu0.20.04.1_amd64.deb.html
 # - https://ubuntu.pkgs.org/20.04/ubuntu-updates-universe-amd64/mariadb-client-core-10.3_10.3.25-0ubuntu0.20.04.1_amd64.deb.html
 # - https://ubuntu.pkgs.org/20.04/ubuntu-main-amd64/libreadline5_5.2+dfsg-3build3_amd64.deb.html
-PKG="mariadb-client-10.3_10.3.25-0ubuntu0.20.04.1_amd64.deb"
-PKG2="mariadb-client-core-10.3_10.3.25-0ubuntu0.20.04.1_amd64.deb"
-PKG3="libreadline5_5.2+dfsg-3build3_amd64.deb"
+PKG="mysql-8.0.23-linux-glibc2.17-x86_64-minimal.tar.xz"
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 CRT="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-
+DATABASE_URL="mysql://root:password@localhost:3306/app"
+WDIR=.heroku/mysql/mysql-8.0.23-linux-glibc2.17-x86_64-minimal
 echo "-----> MySQL Install $PKG"
 mkdir -p $BUILD_DIR/.heroku/mysql
-dpkg -x $CRT/../deb/$PKG $BUILD_DIR/.heroku/mysql
-dpkg -x $CRT/../deb/$PKG2 $BUILD_DIR/.heroku/mysql
-dpkg -x $CRT/../deb/$PKG3 $BUILD_DIR/.heroku/mysql
+mkdir -p $BUILD_DIR/.heroku/mysql/data
+tar -C $BUILD_DIR/.heroku/mysql -xf $CRT/../deb/$PKG
+# dpkg -x $CRT/../deb/$PKG $BUILD_DIR/.heroku/mysql
+# dpkg -x $CRT/../deb/$PKG2 $BUILD_DIR/.heroku/mysql
+# dpkg -x $CRT/../deb/$PKG3 $BUILD_DIR/.heroku/mysql
+wget http://de.archive.ubuntu.com/ubuntu/pool/main/liba/libaio/libaio1_0.3.110-5_amd64.deb
+dpkg -x ./libaio1_0.3.110-5_amd64.deb $BUILD_DIR/.heroku/mysql/libaio
+cp $BUILD_DIR/.heroku/mysql/libaio/lib/x86_64-linux-gnu/* $BUILD_DIR/$WDIR/lib/
+
+
+
+ls $BUILD_DIR/$WDIR -la
+
+client="$BUILD_DIR/$WDIR/bin"
+cat > $BUILD_DIR/env.sh <<'EOF'
+export PATH="/$BUILD_DIR/$WDIR/bin:$PATH"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/$BUILD_DIR/$WDIR/lib"
+EOF
+chmod +x $BUILD_DIR/env.sh
 
 echo "-----> MySQL set PATH"
 mkdir -p $BUILD_DIR/.profile.d
 cat > $BUILD_DIR/.profile.d/mysql.sh <<'EOF'
-export PATH="/app/.heroku/mysql/usr/bin:$PATH"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/app/.heroku/mysql/lib/x86_64-linux-gnu"
+export PATH="/app/$WDIR/bin:$PATH"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/app/$WDIR/lib"
+export DATABASE_URL="$DATABASE_URL"
 EOF
 chmod +x $BUILD_DIR/.profile.d/mysql.sh
+
+$BUILD_DIR/env.sh
+
+cd $client;
+
+./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
+
+sleep 5
+
+ls /tmp/mysql.sock -la
+
+./mysql -u root -e "CREATE DATABASE app;"
+
+./mysql -u root -e 'update user set password=PASSWORD("password") where User="root";'
 
 echo "-----> MySQL Done 🎉"

@@ -1,6 +1,6 @@
 # 🐶 Heroku Buildpack Mysql
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for vendoring the mysql client binaries into your project.
+This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for vendoring the mysql binaries into your project and settup db
 
 ## Versions
 
