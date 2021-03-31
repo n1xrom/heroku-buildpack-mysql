@@ -50,15 +50,15 @@ cd $CLIENT
 echo $BUILD_DIR/.heroku/mysql/data
 ls $BUILD_DIR/.heroku/mysql
 ls $BUILD_DIR/.heroku/mysql/data -la
-./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
+./mysqld --initialize-insecure --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/var/tmp/mysql.sock
 
 sleep 5
 
-ls /tmp/mysql.sock -la
+ls /var/tmp -la
+ls /tmp
+#./mysql -u root --skip-password -e "CREATE DATABASE app;"
 
-./mysql -u root -e "CREATE DATABASE app;"
-
-./mysql -u root -e 'update user set password=PASSWORD("password") where User="root";'
+#./mysql -u root --skip-password -e 'update user set password=PASSWORD("password") where User="root";'
 EOF
 
 chmod +x $BUILD_DIR/env.sh
@@ -68,7 +68,9 @@ mkdir -p $BUILD_DIR/.profile.d
 cat > $BUILD_DIR/.profile.d/mysql.sh <<EOF
 export PATH="/app/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
-export DATABASE_URL="$DATABASE_URL"
+#export DATABASE_URL="$DATABASE_URL"
+export DATABASE_LOCAL_URL="$DATABASE_URL"
+#./mysqld --initialize-insecure --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/var/tmp/mysql.sock
 EOF
 chmod +x $BUILD_DIR/.profile.d/mysql.sh
 
