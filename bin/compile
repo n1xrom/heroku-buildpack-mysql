@@ -69,7 +69,7 @@ export PATH="/app/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 export DATABASE_LOCAL_URL="$DATABASE_URL"
-./mysqld --datadir="/app/.heroku/mysql/data" --socket=/tmp/mysql.sock &
+mysqld --datadir="/app/.heroku/mysql/data" --socket=/tmp/mysql.sock &
 sleep 2
 EOF
 chmod +x $BUILD_DIR/.profile.d/mysql.sh
