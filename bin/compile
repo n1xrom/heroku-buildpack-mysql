@@ -32,10 +32,11 @@ dpkg -x ./libnuma1_2.0.11-2.1_amd64.deb $BUILD_DIR/.heroku/mysql/libs
 cp $BUILD_DIR/.heroku/mysql/libs/usr/lib/x86_64-linux-gnu/* $BUILD_DIR/$WDIR/lib/
 cp $BUILD_DIR/.heroku/mysql/libs/lib/x86_64-linux-gnu/* $BUILD_DIR/$WDIR/lib/
 
-ls -la $BUILD_DIR/.heroku/mysql/data
+chmod +x $CRT/../scripts/*.sh
 
 CLIENT="$BUILD_DIR/$WDIR/bin"
-echo "path-" $CLIENT;
+cp $CRT/../scripts/* $CLIENT
+
 cat > $BUILD_DIR/env.sh <<EOF
 export PATH="$BUILD_DIR/$WDIR/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:$BUILD_DIR/$WDIR/lib"
@@ -45,16 +46,13 @@ echo $BUILD_DIR/.heroku/mysql/data
 ls $BUILD_DIR/.heroku/mysql
 ls $BUILD_DIR/.heroku/mysql/data -la
 
-echo "-----> initialize db"
+echo "-----> initialize mysql"
 ./mysqld --initialize-insecure --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
 
-echo "-----> initialize db"
-./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock &
+echo "-----> create db"
+./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock &
+./wait_for_mysql_pid.sh
 
-sleep 5
-
-ls /var/tmp -la
-ls /tmp
 ./mysql -u root --skip-password -e "CREATE DATABASE app;"
 
 ./mysql -u root --skip-password -e "alter user 'root'@'localhost' identified with mysql_native_password by 'password';"
@@ -69,8 +67,8 @@ export PATH="/app/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 export DATABASE_LOCAL_URL="$DATABASE_URL"
-mysqld --datadir="/app/.heroku/mysql/data" --socket=/tmp/mysql.sock &
-sleep 2
+mysqld --datadir="/app/.heroku/mysql/data" --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock &
+wait_for_mysql_pid.sh
 EOF
 chmod +x $BUILD_DIR/.profile.d/mysql.sh
 
