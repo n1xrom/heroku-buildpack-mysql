@@ -30,20 +30,26 @@ tar -C $BUILD_DIR/.heroku/mysql -xf $CRT/../deb/$PKG
 # dpkg -x $CRT/../deb/$PKG2 $BUILD_DIR/.heroku/mysql
 # dpkg -x $CRT/../deb/$PKG3 $BUILD_DIR/.heroku/mysql
 wget http://de.archive.ubuntu.com/ubuntu/pool/main/liba/libaio/libaio1_0.3.110-5_amd64.deb
-dpkg -x ./libaio1_0.3.110-5_amd64.deb $BUILD_DIR/.heroku/mysql/libaio
-cp $BUILD_DIR/.heroku/mysql/libaio/lib/x86_64-linux-gnu/* $BUILD_DIR/$WDIR/lib/
+dpkg -x ./libaio1_0.3.110-5_amd64.deb $BUILD_DIR/.heroku/mysql/libs
 
+wget http://de.archive.ubuntu.com/ubuntu/pool/main/n/numactl/libnuma1_2.0.11-2.1_amd64.deb
+dpkg -x ./libnuma1_2.0.11-2.1_amd64.deb $BUILD_DIR/.heroku/mysql/libs
 
+cp $BUILD_DIR/.heroku/mysql/libs/usr/lib/x86_64-linux-gnu/* $BUILD_DIR/$WDIR/lib/
+cp $BUILD_DIR/.heroku/mysql/libs/lib/x86_64-linux-gnu/* $BUILD_DIR/$WDIR/lib/
+
+ls -la $BUILD_DIR/.heroku/mysql/data
 
 CLIENT="$BUILD_DIR/$WDIR/bin"
 echo "path-" $CLIENT;
-cat > $BUILD_DIR/env.sh <<'EOF'
-export PATH="/$BUILD_DIR/$WDIR/bin:$PATH"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/$BUILD_DIR/$WDIR/lib"
-ls -la
-echo "path-$CLIENT";
-cd "$CLIENT";
-ls -la
+cat > $BUILD_DIR/env.sh <<EOF
+export PATH="$BUILD_DIR/$WDIR/bin:\$PATH"
+export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:$BUILD_DIR/$WDIR/lib"
+echo "path-$CLIENT"
+cd $CLIENT
+echo $BUILD_DIR/.heroku/mysql/data
+ls $BUILD_DIR/.heroku/mysql
+ls $BUILD_DIR/.heroku/mysql/data -la
 ./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
 
 sleep 5
@@ -55,14 +61,13 @@ ls /tmp/mysql.sock -la
 ./mysql -u root -e 'update user set password=PASSWORD("password") where User="root";'
 EOF
 
-cat $BUILD_DIR/env.sh
 chmod +x $BUILD_DIR/env.sh
 
 echo "-----> MySQL set PATH"
 mkdir -p $BUILD_DIR/.profile.d
-cat > $BUILD_DIR/.profile.d/mysql.sh <<'EOF'
-export PATH="/app/$WDIR/bin:$PATH"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/app/$WDIR/lib"
+cat > $BUILD_DIR/.profile.d/mysql.sh <<EOF
+export PATH="/app/${WDIR}/bin:\$PATH"
+export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 EOF
 chmod +x $BUILD_DIR/.profile.d/mysql.sh
