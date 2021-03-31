@@ -52,10 +52,10 @@ ls $BUILD_DIR/.heroku/mysql
 ls $BUILD_DIR/.heroku/mysql/data -la
 
 echo "-----> initialize db"
-./mysqld --initialize-insecure --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/var/tmp/mysql.sock
+./mysqld --initialize-insecure --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
 
 echo "-----> initialize db"
-./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/var/tmp/mysql.sock &
+./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock &
 
 sleep 5
 
@@ -63,7 +63,7 @@ ls /var/tmp -la
 ls /tmp
 ./mysql -u root --skip-password -e "CREATE DATABASE app;"
 
-./mysql -u root --skip-password -e "alter user 'username'@'localhost' identified with mysql_native_password by 'password';"
+./mysql -u root --skip-password -e "alter user 'root'@'localhost' identified with mysql_native_password by 'password';"
 EOF
 
 chmod +x $BUILD_DIR/env.sh

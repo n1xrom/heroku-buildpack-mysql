@@ -4,4 +4,4 @@ This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) fo
 
 ## Versions
 
-* MySQL: `8.0` for Heroku `stack-20`
+* MySQL: `8.0` local server for Heroku CI `stack-18`
