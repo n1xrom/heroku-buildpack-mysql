@@ -9,12 +9,7 @@ set -eu
 # move hidden files too, just in case
 shopt -s dotglob
 
-# Download packages for Mysql at:
-# - http://security.ubuntu.com/ubuntu/pool/main/m/mysql-8.0/ for MYSQL
-# Download packages for MariaDB at:
-# - https://ubuntu.pkgs.org/20.04/ubuntu-updates-universe-amd64/mariadb-client-10.3_10.3.25-0ubuntu0.20.04.1_amd64.deb.html
-# - https://ubuntu.pkgs.org/20.04/ubuntu-updates-universe-amd64/mariadb-client-core-10.3_10.3.25-0ubuntu0.20.04.1_amd64.deb.html
-# - https://ubuntu.pkgs.org/20.04/ubuntu-main-amd64/libreadline5_5.2+dfsg-3build3_amd64.deb.html
+
 PKG="mysql-8.0.23-linux-glibc2.17-x86_64-minimal.tar.xz"
 BUILD_DIR=$1
 CACHE_DIR=$2
@@ -26,9 +21,8 @@ echo "-----> MySQL Install $PKG"
 mkdir -p $BUILD_DIR/.heroku/mysql
 mkdir -p $BUILD_DIR/.heroku/mysql/data
 tar -C $BUILD_DIR/.heroku/mysql -xf $CRT/../deb/$PKG
-# dpkg -x $CRT/../deb/$PKG $BUILD_DIR/.heroku/mysql
-# dpkg -x $CRT/../deb/$PKG2 $BUILD_DIR/.heroku/mysql
-# dpkg -x $CRT/../deb/$PKG3 $BUILD_DIR/.heroku/mysql
+
+
 wget http://de.archive.ubuntu.com/ubuntu/pool/main/liba/libaio/libaio1_0.3.110-5_amd64.deb
 dpkg -x ./libaio1_0.3.110-5_amd64.deb $BUILD_DIR/.heroku/mysql/libs
 
@@ -75,7 +69,8 @@ export PATH="/app/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 export DATABASE_LOCAL_URL="$DATABASE_URL"
-#./mysqld --datadir="/app/.heroku/mysql/data" --socket=/tmp/mysql.sock &
+./mysqld --datadir="/app/.heroku/mysql/data" --socket=/tmp/mysql.sock &
+sleep 2
 EOF
 chmod +x $BUILD_DIR/.profile.d/mysql.sh
 
