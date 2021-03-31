@@ -35,12 +35,23 @@ cp $BUILD_DIR/.heroku/mysql/libaio/lib/x86_64-linux-gnu/* $BUILD_DIR/$WDIR/lib/
 
 
 
-ls $BUILD_DIR/$WDIR -la
-
 client="$BUILD_DIR/$WDIR/bin"
 cat > $BUILD_DIR/env.sh <<'EOF'
 export PATH="/$BUILD_DIR/$WDIR/bin:$PATH"
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/$BUILD_DIR/$WDIR/lib"
+ls -la
+echo $client;
+cd $client;
+ls -la
+./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
+
+sleep 5
+
+ls /tmp/mysql.sock -la
+
+./mysql -u root -e "CREATE DATABASE app;"
+
+./mysql -u root -e 'update user set password=PASSWORD("password") where User="root";'
 EOF
 chmod +x $BUILD_DIR/env.sh
 
@@ -55,16 +66,5 @@ chmod +x $BUILD_DIR/.profile.d/mysql.sh
 
 $BUILD_DIR/env.sh
 
-cd $client;
-
-./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
-
-sleep 5
-
-ls /tmp/mysql.sock -la
-
-./mysql -u root -e "CREATE DATABASE app;"
-
-./mysql -u root -e 'update user set password=PASSWORD("password") where User="root";'
 
 echo "-----> MySQL Done 🎉"
