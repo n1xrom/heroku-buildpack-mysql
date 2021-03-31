@@ -11,6 +11,7 @@ shopt -s dotglob
 
 
 PKG="mysql-8.0.23-linux-glibc2.17-x86_64-minimal.tar.xz"
+BUILDPACK_DIR="$(dirname $(dirname $0))"
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
@@ -62,15 +63,24 @@ chmod +x $BUILD_DIR/env.sh
 
 echo "-----> MySQL set PATH"
 mkdir -p $BUILD_DIR/.profile.d
-cat > $BUILD_DIR/.profile.d/mysql.sh <<EOF
+cat > $BUILD_DIR/.profile.d/00-mysql.sh <<EOF
 export PATH="/app/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 export DATABASE_LOCAL_URL="$DATABASE_URL"
-nohup mysqld --datadir="/app/.heroku/mysql/data" --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null 2>&1 &
-wait_for_mysql_pid.sh
 EOF
-chmod +x $BUILD_DIR/.profile.d/mysql.sh
+chmod +x $BUILD_DIR/.profile.d/00-mysql.sh
+
+cp $BUILD_DIR/.profile.d/00-mysql.sh $BUILDPACK_DIR/background
+echo "kill \$(cat /var/tmp/mysql.pid)" >> $BUILDPACK_DIR/background
+echo "kill setsid mysqld --datadir=\"/app/.heroku/mysql/data\" --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null 2>&1" >> $BUILDPACK_DIR/background
+echo "wait_for_mysql_pid.sh" >> $BUILDPACK_DIR/background
+
+cat > $BUILDPACK_DIR/export <<EOF
+export PATH="/app/${WDIR}/bin:\$PATH"
+export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
+export DATABASE_URL="$DATABASE_URL"
+EOF
 
 $BUILD_DIR/env.sh
 
