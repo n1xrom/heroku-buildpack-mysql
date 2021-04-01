@@ -47,7 +47,7 @@ echo "-----> initialize mysql"
 ./mysqld --initialize-insecure --datadir="$BUILD_DIR/.heroku/mysql/data" --socket=/tmp/mysql.sock
 
 echo "-----> create db"
-./mysqld --datadir="$BUILD_DIR/.heroku/mysql/data" --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock &
+./mysqld_safe --datadir="$BUILD_DIR/.heroku/mysql/data" --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock &
 PID=\$!
 ./wait_for_mysql_pid.sh
 
@@ -55,11 +55,8 @@ PID=\$!
 
 ./mysql -u root --skip-password -e "alter user 'root'@'localhost' identified with mysql_native_password by 'password';"
 sleep 1
-if [[ \$CI -eq true ]]; then
-    echo "is CI"
-    kill \$PID
-    ./wait_for_stop.sh
-fi
+echo "is CI"
+kill \$PID
 EOF
 
 chmod +x $BUILD_DIR/env.sh
