@@ -68,7 +68,8 @@ export PATH="/app/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 export DATABASE_LOCAL_URL="$DATABASE_URL"
-if ! test -f \"/var/tmp/mysql.pid\"; then
+cat
+if test ! -s "/var/tmp/mysql.pid"; then
   echo 'Start'
   mysqld_safe --datadir=/app/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null  &
   wait_for_mysql_pid.sh
