@@ -62,7 +62,7 @@ chmod +x $BUILD_DIR/env.sh
 
 echo "-----> MySQL set PATH"
 mkdir -p $BUILD_DIR/.profile.d
-cat > $BUILD_DIR/.profile.d/00-mysql.sh <<EOF
+cat > $BUILD_DIR/.profile.d/10-mysql.sh <<EOF
 export PATH="/app/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
@@ -76,7 +76,7 @@ if test ! -s "/var/tmp/mysql.pid"; then
   kill -9 \$!
 fi
 EOF
-chmod +x $BUILD_DIR/.profile.d/00-mysql.sh
+chmod +x $BUILD_DIR/.profile.d/10-mysql.sh
 
 cat > $BUILDPACK_DIR/export <<EOF
 export PATH="/app/${WDIR}/bin:\$PATH"
@@ -84,7 +84,7 @@ export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 EOF
 
-cp $BUILD_DIR/.profile.d/00-mysql.sh $BUILDPACK_DIR/background
+cp $BUILD_DIR/.profile.d/10-mysql.sh $BUILDPACK_DIR/background
 echo "exit 0" >> $BUILDPACK_DIR/background
 
 $BUILD_DIR/env.sh
