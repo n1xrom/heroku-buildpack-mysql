@@ -63,7 +63,7 @@ chmod +x $BUILD_DIR/env.sh
 echo "-----> MySQL set PATH"
 mkdir -p $BUILD_DIR/.profile.d
 cat > $BUILD_DIR/.profile.d/10-mysql.sh <<EOF
-DIR=pwd
+DIR=$(pwd)
 export PATH="\$DIR/${WDIR}/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:\$DIR/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
