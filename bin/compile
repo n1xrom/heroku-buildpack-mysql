@@ -41,6 +41,7 @@ cp $CRT/../scripts/* $CLIENT
 cat > $BUILD_DIR/env.sh <<EOF
 export PATH="$BUILD_DIR/$WDIR/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:$BUILD_DIR/$WDIR/lib"
+export DATABASE_URL="$DATABASE_URL"
 cd $CLIENT
 
 echo "-----> initialize mysql"
@@ -70,7 +71,7 @@ export DATABASE_LOCAL_URL="$DATABASE_URL"
 echo 'ENV are set'
 if test ! -s "/var/tmp/mysql.pid"; then
   echo 'Start'
-  mysqld_safe --datadir=/app/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null  &
+  mysqld_safe --datadir=/app/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null &
   wait_for_mysql_pid.sh
   kill -9 \$!
 fi
