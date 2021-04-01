@@ -78,7 +78,7 @@ echo "fi" >> $BUILDPACK_DIR/background
 echo "echo 'Start'" >> $BUILDPACK_DIR/background
 echo "mysqld --datadir=/app/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null &" >> $BUILDPACK_DIR/background
 echo "wait_for_mysql_pid.sh" >> $BUILDPACK_DIR/background
-
+echo "exit 0" >> $BUILDPACK_DIR/background
 
 cat > $BUILDPACK_DIR/export <<EOF
 export PATH="/app/${WDIR}/bin:\$PATH"
