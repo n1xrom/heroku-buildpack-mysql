@@ -63,15 +63,16 @@ chmod +x $BUILD_DIR/env.sh
 echo "-----> MySQL set PATH"
 mkdir -p $BUILD_DIR/.profile.d
 cat > $BUILD_DIR/.profile.d/10-mysql.sh <<EOF
-export PATH="/app/${WDIR}/bin:\$PATH"
-export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:/app/$WDIR/lib"
+DIR=pwd
+export PATH="\$DIR/${WDIR}/bin:\$PATH"
+export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:\$DIR/$WDIR/lib"
 export DATABASE_URL="$DATABASE_URL"
 export DATABASE_LOCAL_URL="$DATABASE_URL"
 echo 'ENV are set'
 cat /var/tmp/mysql.pid
 if test ! -s "/var/tmp/mysql.pid"; then
   echo 'Start'
-  mysqld_safe --datadir=/app/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null  &
+  mysqld_safe --datadir=\$DIR/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null  &
   wait_for_mysql_pid.sh
   kill -9 \$!
 fi
