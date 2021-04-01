@@ -76,7 +76,9 @@ echo "if test -f \"/var/tmp/mysql.pid\"; then" >> $BUILDPACK_DIR/background
 echo "  kill \$(cat /var/tmp/mysql.pid)" >> $BUILDPACK_DIR/background
 echo "fi" >> $BUILDPACK_DIR/background
 echo "echo 'Start'" >> $BUILDPACK_DIR/background
-echo "setsid mysqld_safe --datadir=/app/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null  &" >> $BUILDPACK_DIR/background
+echo "mysqld_safe --datadir=/app/.heroku/mysql/data --pid-file=/var/tmp/mysql.pid --socket=/tmp/mysql.sock >/dev/null  &" >> $BUILDPACK_DIR/background
+# Trying Kill father
+echo "kill -9 \$!" >> $BUILDPACK_DIR/background
 echo "wait_for_mysql_pid.sh" >> $BUILDPACK_DIR/background
 echo "exit 0" >> $BUILDPACK_DIR/background
 cat $BUILDPACK_DIR/background
